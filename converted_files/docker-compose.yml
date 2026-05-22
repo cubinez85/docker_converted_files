@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cf_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - cf_network
+    restart: always
+
+  web:
+    build: .
+    container_name: cf_django
+    environment:
+      DEBUG: ${DEBUG}
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db          # Имя сервиса postgres в docker network
+      DB_PORT: 5432
+      DJANGO_SETTINGS_MODULE: settings
+    volumes:
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+    ports:
+      - "8085:8000"        # Пробрасываем порт для Nginx на хосте
+    depends_on:
+      - db
+    networks:
+      - cf_network
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 300 wsgi:application"
+    restart: always
+
+volumes:
+  pg_data:
+
+networks:
+  cf_network:
+    driver: bridge

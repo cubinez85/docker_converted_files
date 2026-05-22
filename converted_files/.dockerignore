@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual Environment
+venv/
+.venv/
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets & Local Configs
+.env
+.env.*
+*.local.py
+
+# Application Data (mount via volumes, not copy to image)
+media/
+staticfiles/
+logs/
+tmp/
+
+# Docs & Tests (optional for prod)
+docs/
+tests/
+*.md
+README.md
+LICENSE
