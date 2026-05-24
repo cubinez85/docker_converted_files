@@ -40,6 +40,31 @@ sudo systemctl reload nginx
 docker compose ps
 curl -I http://localhost:8085/admin/
 
+#Важно!!! 
+Добавьте www-data в группу cubinez85
+sudo usermod -aG cubinez85 www-data
+
+# 1. Меняем владельца и группу
+sudo chown -R cubinez85:www-data /home/cubinez85/docker_converted_files/converted_files/media/
+
+# 2. Устанавливаем права + setgid бит (2), чтобы новые файлы от Docker наследовали группу www-data
+sudo find /home/cubinez85/docker_converted_files/converted_files/media/ -type d -exec chmod 2750 {} \;
+
+# 3. Для файлов: владелец rw, группа r, остальные ничего
+sudo find /home/cubinez85/docker_converted_files/converted_files/media/ -type f -exec chmod 640 {} \;
+
+# 4. in nginx config меняем путь к папке проекта!
+
+# Тест конфига
+sudo nginx -t
+
+# Перезагрузка
+sudo systemctl reload nginx
+
+# Тест доступа
+curl -I http://converted-files.cubinez.ru/media/conversions/result/2026/05/24/444f9a5e-1dc6-4285-b573-21a77c93025b_df_funnel.pdf
+# Должно вернуть: HTTP/1.1 200 OK
+
 1) Django-приложение для автоматической конвертации документов.
 Стек: Python, Django, Django Rest Framework, PostgreSQL, Gunicorn, Nginx.
 Особенности:
